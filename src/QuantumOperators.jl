@@ -47,7 +47,7 @@ function nall(d::Integer, L::Integer)
     return out
 end
 
-function singlesite(op::AbstractMatrix, L::Integer, target::Integer)
+function singlesite(op::AbstractMatrix{<:Number}, L::Integer, target::Integer)
     d = size(op)[1]
     return Matrix(I, d^(target-1), d^(target-1)) ⊗ op ⊗ Matrix(I, d^(L-target), d^(L-target))
 end
@@ -67,7 +67,7 @@ function singlesite_adag(d::Integer, L::Integer, target::Integer)
     return sparse(singlesite(ad, L, target))
 end
 
-function bosehubbard(d, L; w=1, U=1, J=1)
+function bosehubbard(d::Integer, L::Integer; w=1, U=1, J=1)
     a = aop(d)
     n = nop(d)
     H = spzeros(d^L, d^L)

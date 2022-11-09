@@ -1,7 +1,7 @@
 name = "QuantumOperators"
 uuid = "c0e07f3f-1bc3-43ad-95cf-312e5bf06829"
 authors = ["ttolppanen <taneli.tolppanen@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"

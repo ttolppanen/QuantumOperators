@@ -67,4 +67,5 @@ end
     normalize!(state)
     n = singlesite_n(d, L, 2)
     @test expval(state, n) == 2
+    @test expval([state, state], n) == [2, 2]
 end
