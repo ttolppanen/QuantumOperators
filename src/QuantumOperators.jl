@@ -2,6 +2,7 @@ module QuantumOperators
 
 using SparseArrays
 using LinearAlgebra
+using QuantumStates
 include("ExpectationValue.jl")
 
 export aop
@@ -10,6 +11,8 @@ export nop
 export singlesite
 export singlesite_n
 export singlesite_a
+export singlesite_adag
+export nall
 export bosehubbard
 
 #d : dimension; e.g. with qubits d = 2
@@ -25,20 +28,23 @@ function aop(d::Integer)
     return complex(out)
 end
 
-adagop(d::Integer) = a(d)'
+adagop(d::Integer) = sparse(aop(d)')
 
 function nop(d::Integer)
     out = spzeros(d, d)
     for i in 1:d
-        out[i, i] = i
+        out[i, i] = i - 1
     end
     return complex(out)
 end
 
 function nall(d::Integer, L::Integer)
     n = nop(d)
-    ops = [n for _ in 1:L]
-    return kron(ops...)
+    out = singlesite(n, L, 1)
+    for i in 2:L
+        out += singlesite(n, L, i)
+    end
+    return out
 end
 
 function singlesite(op::AbstractMatrix, L::Integer, target::Integer)
@@ -54,6 +60,11 @@ end
 function singlesite_a(d::Integer, L::Integer, target::Integer)
     a = aop(d)
     return singlesite(a, L, target)
+end
+
+function singlesite_adag(d::Integer, L::Integer, target::Integer)
+    ad = adagop(d)
+    return sparse(singlesite(ad, L, target))
 end
 
 function bosehubbard(d, L; w=1, U=1, J=1)
