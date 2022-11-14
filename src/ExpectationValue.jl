@@ -1,3 +1,5 @@
+using ITensors
+
 export expval
 
 function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number})
