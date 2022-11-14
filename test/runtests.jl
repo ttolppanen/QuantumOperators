@@ -68,10 +68,10 @@ end
     @test expval(state, n) == 2
     @test expval([state, state], n) == [2, 2]
     @testset "MPS" begin
-        state, inds = allonemps(d, L)
+        state = allonemps(d, L)
         @test expval([state, state], "N"; sites=1) == [1, 1]
         @test expval([state, state], "N"; sites=2:3) == [[1, 1], [1, 1]]
         result = [sum(res) for res in expval([state, state], "N")]
-        @test result == [4, 4]
+        @test result == [L, L]
     end
 end
