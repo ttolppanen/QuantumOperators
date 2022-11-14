@@ -15,7 +15,6 @@ end
     d = 3; L = 3
     state = zeroone(d, L)
     op = nall(d, L)
-    @show expval(state, op)
     expval(state, op) == 1.0
 end
 
