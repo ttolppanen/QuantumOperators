@@ -3,6 +3,8 @@ using SparseArrays
 using LinearAlgebra
 using QuantumOperators.QuantumStates
 
+include("measurementtest.jl")
+
 @test begin
     d = 3
     a = aop(d)

@@ -5,6 +5,7 @@ version = "0.1.1"
 
 [deps]
 ITensors = "9136182c-28ba-11e9-034c-db9fb085ebd5"
+KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 QuantumStates = "0a1581c1-ab82-4660-a1be-26f7b3483457"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
