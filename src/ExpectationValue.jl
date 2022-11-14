@@ -10,3 +10,6 @@ end
 function expval(states::AbstractVector{<:AbstractVector{<:Number}}, op::AbstractMatrix{<:Number})
    return [expval(state, op) for state in states]
 end
+function expval(states::AbstractVector{MPS}, op::String; kwargs...) #keyword arguments for ITensors.expect
+    return [expect(state, op; kwargs...) for state in states] #kwargs can be {sites} 
+ end

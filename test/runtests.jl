@@ -67,4 +67,11 @@ end
     n = singlesite_n(d, L, 2)
     @test expval(state, n) == 2
     @test expval([state, state], n) == [2, 2]
+    @testset "MPS" begin
+        state, inds = allonemps(d, L)
+        @test expval([state, state], "N"; sites=1) == [1, 1]
+        @test expval([state, state], "N"; sites=2:3) == [[1, 1], [1, 1]]
+        result = [sum(res) for res in expval([state, state], "N")]
+        @test result == [4, 4]
+    end
 end
