@@ -57,7 +57,7 @@ function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer)
     sum_of_msr = 0
     for proj_op in msrop[siteIndex]
         proj_mps = apply(proj_op, mps)
-        sum_of_msr += real(inner(mps', proj_mps))
+        sum_of_msr += real(inner(mps, proj_mps))
         if msr_result < sum_of_msr
             mps .= proj_mps
             normalize!(mps)

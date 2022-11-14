@@ -31,7 +31,7 @@ end
     n = nop(d)
     msrop = measurementoperators(n, indices)
     msrresults = [onezeromps(indices), zeroonemps(indices)]
-    @test !(real(inner(state', msrresults[1])) ≈ 1.0 || real(inner(state', msrresults[2])) ≈ 1.0)
+    @test !(real(inner(state, msrresults[1])) ≈ 1.0 || real(inner(state, msrresults[2])) ≈ 1.0)
     measuresite!(state, msrop, 1)
-    @test real(inner(state', msrresults[1])) ≈ 1.0 || real(inner(state', msrresults[2])) ≈ 1.0
+    @test real(inner(state, msrresults[1])) ≈ 1.0 || real(inner(state, msrresults[2])) ≈ 1.0
 end
