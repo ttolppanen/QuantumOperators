@@ -53,12 +53,12 @@ function measuresite!(state::AbstractVector{<:Number}, msrop::MsrOpMatrixType, s
         end
     end
 end
-function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer)
+function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer; kwargs...) #kwargs for ITensors.apply
     ITensors.orthogonalize!(mps, siteIndex) #Is this necessary?
     msr_result = rand(Float64)
     sum_of_msr = 0
     for proj_op in msrop[siteIndex]
-        proj_mps = apply(proj_op, mps)
+        proj_mps = apply(proj_op, mps; kwargs...)
         sum_of_msr += real(inner(mps, proj_mps))
         if msr_result < sum_of_msr
             mps .= proj_mps
