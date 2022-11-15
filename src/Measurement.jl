@@ -6,6 +6,8 @@ using SparseArrays
 
 export measurementoperators
 export measuresite!
+export MsrOpMatrixType
+export MsrOpITensorType
 
 #op : operator; a complex matrix representing the operators
 #indices : physical indices, see ITensors
