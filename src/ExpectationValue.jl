@@ -16,18 +16,18 @@ function expval(state::MPS, op::Union{Matrix{<:Number}, String}; kwargs...) #key
 end
 
 function expval(states, op; kwargs...) #kwargs for expval (ITensor.expect)
-   return [expval(state, op; kwargs...) for state in states]
+    return [expval(state, op; kwargs...) for state in states]
 end
 
- function trajmean(traj, f::Function)
+function trajmean(traj, f::Function)
     traj_num = length(traj)
     out = f.(traj[1])
     for i in 2:traj_num
         out .+= f.(traj[i])
     end
     return out ./ traj_num
- end
- function trajmean(traj, op; kwargs...) #kwargs for expval (ITensor.expect)
+end
+function trajmean(traj, op; kwargs...) #kwargs for expval (ITensor.expect)
     f(state) = expval(state, op; kwargs...)
     return trajmean(traj, f)
- end
+end
