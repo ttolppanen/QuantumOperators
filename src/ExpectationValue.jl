@@ -15,6 +15,7 @@ function expval(state::MPS, op::Union{Matrix{<:Number}, String}; kwargs...) #key
     expect(state, op; kwargs...) #kwargs can be {sites} 
 end
 
+#expval for time-evolution
 function expval(states, op; kwargs...) #kwargs for expval (ITensor.expect)
     return [expval(state, op; kwargs...) for state in states]
 end
