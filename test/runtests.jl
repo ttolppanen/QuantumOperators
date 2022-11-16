@@ -84,3 +84,13 @@ end
         @test result == [L, L]
     end
 end
+
+@testset "Entanglement" begin
+    d = 3; L = 2
+    mps = zeroonemps(d, L)
+    @test entanglement(mps, 1) == 0.0
+    mps += onezeromps(siteinds(mps))
+    normalize!(mps)
+    @show mps
+    @test entanglement(mps, 1) ≈ log(2)
+end
