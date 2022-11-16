@@ -91,6 +91,5 @@ end
     @test entanglement(mps, 1) == 0.0
     mps += onezeromps(siteinds(mps))
     normalize!(mps)
-    @show mps
     @test entanglement(mps, 1) ≈ log(2)
 end

@@ -11,23 +11,23 @@ function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number})
     out = state' * op * state
     return isapprox(imag(out), 0; atol=eps(Float64)) ? real(out) : throw(InexactError(:Real, Real, out)) #Check if imaginary is zero
 end
-
-function expval(states::AbstractVector{<:AbstractVector{<:Number}}, op::AbstractMatrix{<:Number})
-   return [expval(state, op) for state in states]
+function expval(state::MPS, op::Union{Matrix{<:Number}, String}; kwargs...) #keyword arguments for ITensors.expect
+    expect(state, op; kwargs...) #kwargs can be {sites} 
 end
-function expval(states::AbstractVector{MPS}, op::Union{Matrix{<:Number}, String}; kwargs...) #keyword arguments for ITensors.expect
-    return [expect(state, op; kwargs...) for state in states] #kwargs can be {sites} 
- end
+
+function expval(states, op; kwargs...) #kwargs for expval (ITensor.expect)
+   return [expval(state, op; kwargs...) for state in states]
+end
 
  function trajmean(traj, f::Function)
     traj_num = length(traj)
     out = f.(traj[1])
     for i in 2:traj_num
-        out .+= f(traj[i])
+        out .+= f.(traj[i])
     end
     return out ./ traj_num
  end
  function trajmean(traj, op; kwargs...) #kwargs for expval (ITensor.expect)
-    f(states) = expval(states, op; kwargs...)
+    f(state) = expval(state, op; kwargs...)
     return trajmean(traj, f)
  end
