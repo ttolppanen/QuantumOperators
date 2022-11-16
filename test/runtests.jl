@@ -69,6 +69,13 @@ end
     n = singlesite_n(d, L, 2)
     @test expval(state, n) == 2
     @test expval([state, state], n) == [2, 2]
+    @testset "Trajectories" begin
+        traj1 = [state, state]
+        @test trajmean([traj1, traj1], n) == [2, 2]
+        traj2 = [zeroone(d, L), zeroone(d, L)]
+        @test trajmean([traj1, traj2, traj1, traj2], n) == [1.5, 1.5] 
+    end
+    
     @testset "MPS" begin
         state = allonemps(d, L)
         @test expval([state, state], "N"; sites=1) == [1, 1]
