@@ -218,7 +218,7 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.QuantumStates]]
 deps = ["ITensors", "SparseArrays"]
-git-tree-sha1 = "3ed48b74c92394dc524cd0a056047e6a13dd4e61"
+git-tree-sha1 = "cc25e176f990bd22742a3a38a18390ad030e5faf"
 repo-rev = "master"
 repo-url = "https://github.com/ttolppanen/QuantumStates.git"
 uuid = "0a1581c1-ab82-4660-a1be-26f7b3483457"
