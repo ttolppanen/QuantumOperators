@@ -10,7 +10,7 @@ export trajmean
 function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number})
     out = state' * op * state
     if !(isapprox(imag(out), 0; atol=eps(Float64))) #Check if imaginary is not zero
-        @warn sprint(InexactError(:Real, Real, out))
+        @warn sprint(showerror, InexactError(:Real, Real, out))
     end
     return real(out)
 end
