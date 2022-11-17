@@ -9,7 +9,10 @@ export trajmean
 
 function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number})
     out = state' * op * state
-    return isapprox(imag(out), 0; atol=eps(Float64)) ? real(out) : throw(InexactError(:Real, Real, out)) #Check if imaginary is zero
+    if !(isapprox(imag(out), 0; atol=eps(Float64))) #Check if imaginary is not zero
+        @warn sprint(InexactError(:Real, Real, out))
+    end
+    return real(out)
 end
 function expval(state::MPS, op::Union{Matrix{<:Number}, String}; kwargs...) #keyword arguments for ITensors.expect
     expect(state, op; kwargs...) #kwargs can be {sites} 
