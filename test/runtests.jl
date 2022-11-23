@@ -1,7 +1,7 @@
 using QuantumOperators, Test
 using SparseArrays
 using LinearAlgebra
-using QuantumOperators.QuantumStates
+using QuantumStates
 
 include("measurementtest.jl")
 
