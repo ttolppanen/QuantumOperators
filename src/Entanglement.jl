@@ -7,7 +7,28 @@ export entanglement
 
 #cut : cut between the left and right bipartion of the system; cut = 2 cuts the system in to A = {1, 2} and B {3,..., L}
 
-function entanglement(d, L, state, cut)
+
+function entanglement(d::Integer, L::Integer, state::AbstractVector{<:Number}, cut::Integer)
+    m = schmidt_form(state, d^(cut), d^(L - cut))
+    S = svdvals(m)
+    out = 0.0
+    for s in S
+        p = s^2
+        out -= (p + 1 ≈ 1.0 ? 0.0 : p * log(p)) 
+    end
+    return out
+end
+function schmidt_form(state::AbstractVector{<:Number}, d_a, d_b)
+    mat_out = zeros(d_a, d_b)
+    for b_i in 1:d_b
+        for a_i in 1:d_a
+            mat_out[a_i, b_i] = state[d_b * (a_i - 1) + b_i]
+        end
+    end
+    return mat_out
+end
+
+function entanglement(d::Integer, L::Integer, state::AbstractMatrix{<:Number}, cut)
     rho_p = ptrace(d, L, state, (cut+1):L)
     if issparse(rho_p)
         vals = eigvals(Matrix(rho_p))
