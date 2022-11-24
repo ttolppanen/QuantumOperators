@@ -68,12 +68,24 @@ function teststate(d, L)
         state = onezero(d, L)
         rho = state * state'
         rho_p = ptrace(d, L, rho, 1:half)
-        @test rho_p ≈ (onezero(d, L - half) * onezero(d, L - half)')
+        stateshouldbe(rho_p, onezero(d, L - half))
+        
         even_sites = 2:2:(half * 2)
         rho_p = ptrace(d, L, rho, even_sites)
-        should_be = allone(d, L - length(even_sites)) * allone(d, L - length(even_sites))'
-        @test rho_p ≈ should_be
+        stateshouldbe(rho_p, allone(d, L - length(even_sites)))
+        
+        state = singleone(d, L , 1) + singleone(d, L, 2)
+        normalize!(state)
+        rho = state * state'
+        rho_p = ptrace(d, L, rho, 3:L)
+        should_be = normalize(zeroone(d, 2) + onezero(d, 2))
+        stateshouldbe(rho_p, should_be)
+        rho_p = ptrace(d, L, rho, (1,2))
+        stateshouldbe(rho_p, allzero(d, L-2))
     end
+end
+function stateshouldbe(rho_p, state)
+    @test rho_p ≈ state * state'
 end
 
 d = 3; L = 4
