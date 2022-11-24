@@ -4,6 +4,7 @@ using LinearAlgebra
 using QuantumStates
 
 include("measurementtest.jl")
+include("partialtracetest.jl")
 
 @test begin
     d = 3

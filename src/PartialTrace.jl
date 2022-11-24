@@ -5,8 +5,11 @@ export ptrace
 #rho : density matrix; for pure states rho = |Ψ><Ψ|
 #d : dimension; e.g. with qubits d = 2
 #L : number of systems;
-#cut : cut between the left and right bipartion of the system; cut = 2 cuts the system in to A = {1, 2} and B {3,..., L}
-function recursive_ptrace_set_index(d::Integer, i::Integer, j::Integer, out::AbstractMatrix{<:Number}, rho::AbstractMatrix{<:Number}, to_sum_over; i_original=i, j_original=j)
+#to_sum_over : sites that will be traced out; e.g. to trace out the first and third site: to_sum_over = [1, 3]
+#                                             or to trace out second to fourth site: to_sum_over = 2:4
+
+
+function recursive_ptrace_set_index(d::Integer, i::Integer, j::Integer, out::AbstractMatrix{<:Number}, rho::AbstractMatrix{<:Number}, to_sum_over::AbstractVector{<:Integer}; i_original=i, j_original=j)
     k = to_sum_over[1]
     dk = d^(k-1)
     for k_i in 0:d-1
@@ -30,7 +33,8 @@ function recursive_ptrace_set_index(d::Integer, i::Integer, j::Integer, out::Abs
     end
 end
 function ptrace(d::Integer, L::Integer, rho::AbstractMatrix{<:Number}, to_sum_over)
-    sum_over = sort(union(collect(to_sum_over)))
+    sum_over = union(collect(to_sum_over))
+    sum_over = sort([L - i + 1 for i in sum_over]) #The sum over is reversed, since with the tensor notation first site is the last site
     out = complex(spzeros(d^(L-length(sum_over)), d^(L-length(sum_over))))
     for j in axes(out, 2)
         for i in axes(out, 1)
@@ -39,17 +43,3 @@ function ptrace(d::Integer, L::Integer, rho::AbstractMatrix{<:Number}, to_sum_ov
     end
     return out
 end
-#=
-if j <= d^(k-1)
-    j_rho = j + k_i * d^(k-1)
-else
-    j_m = (j-1) % d^(k-1) + 1
-    j_rho = (j - j_m) * d + j_m + k_i * d^(k-1)
-end
-if i <= d^(k-1)
-    i_rho = i + k_i * d^(k-1)
-else
-    j_m = (i-1) % d^(k-1) + 1
-    i_rho = (i - j_m) * d + j_m + k_i * d^(k-1)
-end
-=#
