@@ -88,9 +88,31 @@ end
 
 @testset "Entanglement" begin
     d = 3; L = 2
-    mps = zeroonemps(d, L)
-    @test entanglement(mps, 1) == 0.0
-    mps += onezeromps(siteinds(mps))
-    normalize!(mps)
-    @test entanglement(mps, 1) ≈ log(2)
+    @testset "Complete" begin
+        state = zeroone(d, L)
+        @test entanglement(d, L, state, 1) == 0.0
+        state += onezero(d, L)
+        normalize!(state)
+        @test entanglement(d, L, state, 1) ≈ log(2)
+
+        L = 4
+        state = singleone(d, L, 1)
+        @test entanglement(d, L, state, 1) == 0.0
+        state += singleone(d, L, 2)
+        normalize!(state)
+        @test entanglement(d, L, state, 1) ≈ log(2)
+        @test (entanglement(d, L, state, 2) + 1) ≈ 1.0
+        
+        rho = state * state'
+        @test entanglement(d, L, rho, 1) ≈ log(2)
+        @test entanglement(d, L, rho, 2) ≈ log(2)
+        @test (entanglement(d, L, rho, 3) + 1) ≈ 1.0
+    end
+    @testset "MPS" begin
+        mps = zeroonemps(d, L)
+        @test entanglement(mps, 1) == 0.0
+        mps += onezeromps(siteinds(mps))
+        normalize!(mps)
+        @test entanglement(mps, 1) ≈ log(2)
+    end
 end

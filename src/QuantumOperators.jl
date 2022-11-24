@@ -1,5 +1,9 @@
 module QuantumOperators
 
+#internal
+include("Utility/ConvertToReal.jl")
+
+#export
 include("CompleteSpaceOperators.jl")
 include("ExpectationValue.jl")
 include("Measurement.jl")

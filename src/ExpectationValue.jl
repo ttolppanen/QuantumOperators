@@ -1,4 +1,5 @@
 using ITensors
+#include("Utility/ConvertToReal.jl")
 
 export expval
 export trajmean
@@ -9,10 +10,7 @@ export trajmean
 
 function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number})
     out = state' * op * state
-    if !(isapprox(imag(out), 0; atol=eps(Float64))) #Check if imaginary is not zero
-        @warn sprint(showerror, InexactError(:Real, Real, out))
-    end
-    return real(out)
+    return real_with_warning(out)
 end
 function expval(state::MPS, op::Union{Matrix{<:Number}, String}; kwargs...) #keyword arguments for ITensors.expect
     expect(state, op; kwargs...) #kwargs can be {sites} 
