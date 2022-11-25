@@ -19,8 +19,8 @@ function entanglement(d::Integer, L::Integer, state::AbstractVector{<:Number}, c
     end
     return out
 end
-function schmidt_form(state::AbstractVector{<:Number}, d_a, d_b)
-    mat_out = zeros(d_a, d_b)
+function schmidt_form(state::AbstractVector{<:Number}, d_a::Integer, d_b::Integer)
+    mat_out = complex(zeros(d_a, d_b))
     for b_i in 1:d_b
         for a_i in 1:d_a
             mat_out[a_i, b_i] = state[d_b * (a_i - 1) + b_i]

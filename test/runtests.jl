@@ -89,7 +89,7 @@ end
 @testset "Entanglement" begin
     d = 3; L = 2
     @testset "Complete" begin
-        state = zeroone(d, L)
+        state = zeroone(d, L) * 1im
         @test entanglement(d, L, state, 1) == 0.0
         state += onezero(d, L)
         normalize!(state)
