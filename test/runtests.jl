@@ -1,7 +1,8 @@
 using QuantumOperators, Test
+using QuantumStates
 using SparseArrays
 using LinearAlgebra
-using QuantumStates
+using ITensors
 
 include("measurementtest.jl")
 include("partialtracetest.jl")

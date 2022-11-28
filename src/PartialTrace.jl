@@ -1,12 +1,12 @@
-using ITensors
+# using ITensors
 
 export ptrace
 
-#rho : density matrix; for pure states rho = |Ψ><Ψ|
-#d : dimension; e.g. with qubits d = 2
-#L : number of systems;
-#to_sum_over : sites that will be traced out; e.g. to trace out the first and third site: to_sum_over = [1, 3]
-#                                             or to trace out second to fourth site: to_sum_over = 2:4
+# rho : density matrix; for pure states rho = |Ψ><Ψ|
+# d : dimension; e.g. with qubits d = 2
+# L : number of systems;
+# to_sum_over : sites that will be traced out; e.g. to trace out the first and third site: to_sum_over = [1, 3]
+#                                              or to trace out second to fourth site: to_sum_over = 2:4
 
 
 function recursive_ptrace_set_index(d::Integer, i::Integer, j::Integer, out::AbstractMatrix{<:Number}, rho::AbstractMatrix{<:Number}, to_sum_over::AbstractVector{<:Integer}; i_original=i, j_original=j)

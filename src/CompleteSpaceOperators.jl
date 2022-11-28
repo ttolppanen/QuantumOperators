@@ -1,5 +1,5 @@
-using SparseArrays
-using LinearAlgebra
+# using SparseArrays
+# using LinearAlgebra
 
 export aop
 export adagop
@@ -11,8 +11,8 @@ export singlesite_adag
 export nall
 export bosehubbard
 
-#d : dimension; e.g. with qubits d = 2
-#L : number of systems;
+# d : dimension; e.g. with qubits d = 2
+# L : number of systems;
 
 ⊗(a, b) = kron(a, b)
 

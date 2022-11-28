@@ -1,5 +1,10 @@
 module QuantumOperators
 
+using SparseArrays
+using LinearAlgebra
+using ITensors
+using KrylovKit
+
 #internal
 include("Utility/ConvertToReal.jl")
 

@@ -1,12 +1,12 @@
-using ITensors
-using LinearAlgebra
-using SparseArrays
-#include("PartialTrace.jl")
-#include("Utility/ConvertToReal.jl")
+# using ITensors
+# using LinearAlgebra
+# using SparseArrays
+# include("PartialTrace.jl")
+# include("Utility/ConvertToReal.jl")
 
 export entanglement
 
-#cut : cut between the left and right bipartion of the system; cut = 2 cuts the system in to A = {1, 2} and B {3,..., L}
+# cut : cut between the left and right bipartion of the system; cut = 2 cuts the system in to A = {1, 2} and B {3,..., L}
 #      for entanglement for a density matrix, cut is the sites to trace over
 
 function entanglement(d::Integer, L::Integer, state::AbstractVector{<:Number}, cut::Integer)
