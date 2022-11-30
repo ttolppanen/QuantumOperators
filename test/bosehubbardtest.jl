@@ -13,6 +13,9 @@ state = bosonstack(3, L, 1)
 H = bosehubbard(4, L; U=-3)
 @test expval(state, H) == 12
 wUJ = 10 * rand(3)
-@test bosehubbard(d, L; w=wUJ[1], U=wUJ[2], J=wUJ[3]) == QuantumOperators.bosehubbard_old(d, L; w=wUJ[1], U=wUJ[2], J=wUJ[3])
+d = 4; L = 5
+H = bosehubbard(d, L; w=wUJ[1], U=wUJ[2], J=wUJ[3])
+H_correct = QuantumOperators.bosehubbard_old(d, L; w=wUJ[1], U=wUJ[2], J=wUJ[3])
+@test norm(H - H_correct) + 1.0 ≈ 1.0
 
 end # testset
