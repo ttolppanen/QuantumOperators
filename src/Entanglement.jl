@@ -9,16 +9,6 @@ export entanglement
 # cut : cut between the left and right bipartion of the system; cut = 2 cuts the system in to A = {1, 2} and B {3,..., L}
 #      for entanglement for a density matrix, cut is the sites to trace over
 
-function entanglement(d::Integer, L::Integer, state::AbstractVector{<:Number}, cut::Integer)
-    m = schmidt_form(state, d^(cut), d^(L - cut))
-    S = svdvals(m)
-    out = 0.0
-    for s in S
-        p = real_with_warning(s^2)
-        out -= (p + 1 ≈ 1.0 ? 0.0 : p * log(p)) 
-    end
-    return out
-end
 function schmidt_form(state::AbstractVector{<:Number}, d_a::Integer, d_b::Integer)
     mat_out = complex(zeros(d_a, d_b))
     for b_i in 1:d_b
@@ -29,6 +19,22 @@ function schmidt_form(state::AbstractVector{<:Number}, d_a::Integer, d_b::Intege
     return mat_out
 end
 
+function entanglement(d::Integer, L::Integer, states, cut)
+    return [entanglement(d, L, s, cut) for s in states]
+end
+function entanglement(states::Vector{MPS}, cut::Integer)
+    return [entanglement(s, cut) for s in states]
+end
+function entanglement(d::Integer, L::Integer, state::AbstractVector{<:Number}, cut::Integer)
+    m = schmidt_form(state, d^(cut), d^(L - cut))
+    S = svdvals(m)
+    out = 0.0
+    for s in S
+        p = real_with_warning(s^2)
+        out -= (p + 1 ≈ 1.0 ? 0.0 : p * log(p)) 
+    end
+    return out
+end
 function entanglement(d::Integer, L::Integer, state::AbstractMatrix{<:Number}, cut)
     rho_p = ptrace(d, L, state, cut)
     if issparse(rho_p)

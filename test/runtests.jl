@@ -103,11 +103,13 @@ end
         state += singleone(d, L, 2)
         normalize!(state)
         @test entanglement(d, L, state, 1) ≈ log(2)
+        @test entanglement(d, L, [state, state], 1) ≈ [log(2), log(2)]
         @test (entanglement(d, L, state, 2) + 1) ≈ 1.0
         
         rho = state * state'
         @test entanglement(d, L, rho, 1) ≈ log(2)
         @test entanglement(d, L, rho, 2) ≈ log(2)
+        @test entanglement(d, L, [rho, rho], 2) ≈ [log(2), log(2)]
         @test (entanglement(d, L, rho, 3) + 1) ≈ 1.0
     end
     @testset "MPS" begin
@@ -116,5 +118,6 @@ end
         mps += onezeromps(siteinds(mps))
         normalize!(mps)
         @test entanglement(mps, 1) ≈ log(2)
+        @test entanglement([mps, mps], 1) ≈ [log(2), log(2)]
     end
 end
