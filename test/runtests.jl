@@ -6,6 +6,7 @@ using ITensors
 
 include("measurementtest.jl")
 include("partialtracetest.jl")
+include("bosehubbardtest.jl")
 
 @test begin
     d = 3
