@@ -10,6 +10,7 @@ include("Utility/ConvertToReal.jl")
 
 #export
 include("CompleteSpaceOperators.jl")
+include("ProjectionOperators.jl")
 include("ExpectationValue.jl")
 include("Measurement.jl")
 include("PartialTrace.jl")

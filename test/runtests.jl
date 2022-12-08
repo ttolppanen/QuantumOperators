@@ -7,6 +7,7 @@ using ITensors
 include("measurementtest.jl")
 include("partialtracetest.jl")
 include("bosehubbardtest.jl")
+include("projectionoperatorstest.jl")
 
 @test begin
     d = 3
@@ -43,6 +44,9 @@ end
     end
     @testset "nall" begin
         testtype(nall(d, 3)) 
+    end
+    @testset "n_bosons_projector" begin
+        testtype(n_bosons_projector(d, 2)) 
     end
     @testset "bosehubbard" begin
         testtype(bosehubbard(d, 3)) 

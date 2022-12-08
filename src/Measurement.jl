@@ -45,7 +45,7 @@ function measuresite!(state::AbstractVector{<:Number}, msrop::MsrOpMatrixType, s
     sum_of_msr = 0
     for proj_op in msrop[siteIndex]
         proj_state = proj_op * state
-        sum_of_msr += real(state' * proj_state)
+        sum_of_msr += sum(abs2.(proj_state))
         if msr_result < sum_of_msr
             state .= proj_state
             normalize!(state)
@@ -59,7 +59,7 @@ function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer; kwa
     sum_of_msr = 0
     for proj_op in msrop[siteIndex]
         proj_mps = apply(proj_op, mps; kwargs...)
-        sum_of_msr += real(inner(mps, proj_mps))
+        sum_of_msr += real(inner(proj_mps, proj_mps))
         if msr_result < sum_of_msr
             mps .= proj_mps
             normalize!(mps)
