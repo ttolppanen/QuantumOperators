@@ -1,11 +1,13 @@
 # using ITensors
 # using KrylovKit
 # using SparseArrays
+# using LinearAlgebra
 
 # include("CompleteSpaceOperators.jl")
 
 export measurementoperators
 export measuresite!
+export unitary_after_measurement!
 export MsrOpMatrixType
 export MsrOpITensorType
 
@@ -66,6 +68,51 @@ function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer; kwa
             break
         end
     end
+end
+
+function unitary_after_measurement!(U::AbstractMatrix{<:Complex}, msrop::T) where {T<:MsrOpMatrixType}
+    L = length(msrop)
+    for site in 1:L
+        U_site = singlesite(U, L, site)
+        for i in eachindex(msrop[site])
+            msrop[site][i] .= U_site * msrop[site][i]
+        end
+    end
+    if !isa(msrop, T) throw(ArgumentError("Type of U changed the type of msrop. Try Matrix(U)")) end
+end
+function unitary_after_measurement!(U::Vector{<:AbstractMatrix{<:Complex}}, msrop::T) where {T<:MsrOpMatrixType}
+    L = length(msrop)
+    for site in 1:L
+        U_site = singlesite(U[site], L, site)
+        for i in eachindex(msrop[site])
+            msrop[site][i] .= U_site * msrop[site][i]
+        end
+    end
+    if !isa(msrop, T) throw(ArgumentError("Type of U changed the type of msrop. Try Matrix(U)")) end
+end
+function unitary_after_measurement!(U::AbstractMatrix{<:Complex}, msrop::T) where {T<:MsrOpITensorType}
+    L = length(msrop)
+    for site in 1:L
+        for i in eachindex(msrop[site])
+            msr_res = msrop[site][i]
+            mat_inds = inds(msr_res)
+            msr_res_mat = U * Matrix(msr_res, mat_inds[1], mat_inds[2])
+            msrop[site][i] = ITensor(msr_res_mat, mat_inds[1], mat_inds[2])
+        end
+    end
+    if !isa(msrop, T) throw(ArgumentError("Type of U changed the type of msrop. Try Matrix(U)")) end
+end
+function unitary_after_measurement!(U::Vector{<:AbstractMatrix{<:Complex}}, msrop::T) where {T<:MsrOpITensorType}
+    L = length(msrop)
+    for site in 1:L
+        for i in eachindex(msrop[site])
+            msr_res = msrop[site][i]
+            mat_inds = inds(msr_res)
+            msr_res_mat = U[site] * Matrix(msr_res, mat_inds[1], mat_inds[2])
+            msrop[site][i] = ITensor(msr_res_mat, mat_inds[1], mat_inds[2])
+        end
+    end
+    if !isa(msrop, T) throw(ArgumentError("Type of U changed the type of msrop. Try Matrix(U)")) end
 end
 
 # alternatively use:
