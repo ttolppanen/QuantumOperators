@@ -3,6 +3,7 @@
 
 export expval
 export trajmean
+export bosonmean
 
 # state : quantum state; either a complex vector or a MPS representing the quantum state
 # op : operator; a complex matrix representing the operator, for MPS you can also pass the operator as a string (see ITensors for supported operators as strings)
@@ -32,4 +33,18 @@ end
 function trajmean(traj, op; kwargs...) # kwargs for expval (ITensor.expect)
     f(state) = expval(state, op; kwargs...)
     return trajmean(traj, f)
+end
+
+function bosonmean(d::Integer, L::Integer, state::AbstractVector{<:Number}, sites::AbstractArray{<:Integer})
+    out = 0;
+    sites_reversed = [L - (site - 1) for site in sites] # withouth reversing 1 would refer to the last site etc..
+    for (i, value) in enumerate(state)
+        n_total = 0
+        for site in sites_reversed
+            n = floor((i-1) / d^(site-1)) % d
+            n_total += n
+        end
+        out += n_total * abs2(value)
+    end
+    return out
 end

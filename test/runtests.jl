@@ -8,6 +8,7 @@ include("measurementtest.jl")
 include("partialtracetest.jl")
 include("bosehubbardtest.jl")
 include("projectionoperatorstest.jl")
+include("bosonmeantest.jl")
 
 @test begin
     d = 3
