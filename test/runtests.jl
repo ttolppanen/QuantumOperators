@@ -125,4 +125,11 @@ end
         @test entanglement(mps, 1) ≈ log(2)
         @test entanglement([mps, mps], 1) ≈ [log(2), log(2)]
     end
+    @testset "Not in a chain" begin
+        d = 3; L = 6
+        state = normalize(zeroone(3, L) + allone(d, L) + onezero(d, L))
+        @test entanglement(d, L, state, 1:3) ≈ entanglement(d, L, state, 3)
+        @test entanglement(d, L, state, [1,5]) ≈ entanglement(d, L, state * state', [1, 5]) # the one on the right does this with partial trace
+        @test entanglement(d, L, state, 5:6) ≈ entanglement(d, L, state, 1:4)
+    end
 end
