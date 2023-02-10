@@ -8,7 +8,6 @@ export entanglement
 
 # cut : cut between the left and right bipartion of the system; cut = 2 cuts the system in to A = {1, 2} and B {3,..., L}
 #      for entanglement for a density matrix, cut is the sites to trace over
-
 function schmidt_form(state::AbstractVector{<:Number}, d_a::Integer, d_b::Integer)
     mat_out = complex(zeros(d_a, d_b))
     for b_i in 1:d_b
@@ -19,6 +18,29 @@ function schmidt_form(state::AbstractVector{<:Number}, d_a::Integer, d_b::Intege
     return mat_out
 end
 
+# sub_system : list of intergers referring to the sites; i.e. you want the schmidt matrix where A is the first, second and fourth site, you set sub_system = [1,2,4]
+function schmidt_form(state::AbstractVector{<:Number}, d::Integer, L::Integer, sub_system::AbstractArray)
+    if d^L > size(state)[1]
+        throw(ArgumentError("d^L > dim(state), check you have set d and L correctly"))
+    end
+    sub_a = [L - (i - 1) for i in sub_system] # reverse order
+    sort!(sub_a)
+    sub_b = setdiff(1:L, sub_a)
+    out = complex(zeros(d^length(sub_a), d^length(sub_b)))
+    for i in eachindex(state)
+        k_i = 1
+        for sub_i in eachindex(sub_a)
+            k_i += (floor(Int, (i - 1) / d^(sub_a[sub_i] - 1)) % d) * d^(sub_i - 1)
+        end
+        k_j = 1
+        for sub_i in eachindex(sub_b)
+            k_j += (floor(Int, (i - 1) / d^(sub_b[sub_i] - 1)) % d) * d^(sub_i - 1)
+        end
+        out[k_i, k_j] = state[i]
+    end
+    return out
+end
+
 function entanglement(d::Integer, L::Integer, states, cut)
     return [entanglement(d, L, s, cut) for s in states]
 end
@@ -27,6 +49,16 @@ function entanglement(states::Vector{MPS}, cut::Integer)
 end
 function entanglement(d::Integer, L::Integer, state::AbstractVector{<:Number}, cut::Integer)
     m = schmidt_form(state, d^(cut), d^(L - cut))
+    S = svdvals(m)
+    out = 0.0
+    for s in S
+        p = real_with_warning(s^2)
+        out -= (p + 1 ≈ 1.0 ? 0.0 : p * log(p)) 
+    end
+    return out
+end
+function entanglement(d::Integer, L::Integer, state::AbstractVector{<:Number}, sub_systems::AbstractArray) # look at schmidt_form for sub_systems
+    m = schmidt_form(state, d, L, sub_systems)
     S = svdvals(m)
     out = 0.0
     for s in S
