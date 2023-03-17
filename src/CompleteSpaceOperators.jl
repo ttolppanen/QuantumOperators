@@ -45,7 +45,7 @@ end
 
 function singlesite(op::AbstractMatrix{<:Number}, L::Integer, target::Integer)
     d = size(op)[1]
-    return Matrix(I, d^(target-1), d^(target-1)) ⊗ op ⊗ Matrix(I, d^(L-target), d^(L-target))
+    return sparse(I, d^(target-1), d^(target-1)) ⊗ op ⊗ sparse(I, d^(L-target), d^(L-target))
 end
 
 function singlesite_n(d::Integer, L::Integer, target::Integer)
