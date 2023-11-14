@@ -15,5 +15,6 @@ include("ExpectationValue.jl")
 include("Measurement.jl")
 include("PartialTrace.jl")
 include("Entanglement.jl")
+include("FindSubspace.jl")
 
 end # module

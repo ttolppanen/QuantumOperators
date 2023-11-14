@@ -9,6 +9,7 @@ include("partialtracetest.jl")
 include("bosehubbardtest.jl")
 include("projectionoperatorstest.jl")
 include("bosonmeantest.jl")
+include("subspacetest.jl")
 
 @test begin
     d = 3
@@ -77,6 +78,7 @@ end
     n = singlesite_n(d, L, 2)
     @test expval(state, n) == 2
     @test expval([state, state], n) == [2, 2]
+
     @testset "Trajectories" begin
         traj1 = [state, state]
         @test trajmean([traj1, traj1], n) == [2, 2]
@@ -90,6 +92,20 @@ end
         @test expval([state, state], "N"; sites=2:3) == [[1, 1], [1, 1]]
         result = [sum(res) for res in expval([state, state], "N")]
         @test result == [L, L]
+    end
+
+    @testset "Subspace" begin
+        state = allone(d, L)
+        indices = total_boson_number_subspace(d, L)
+        n = nall(d, L)
+        max_n = L * (d - 1)
+        for i in 1:max_n
+            if i == L
+                @test expval(state, n, indices[i]) == i
+            else
+                @test expval(state, n, indices[i]) == 0.0
+            end
+        end
     end
 end
 

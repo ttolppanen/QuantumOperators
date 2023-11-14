@@ -8,9 +8,14 @@ export bosonmean
 # state : quantum state; either a complex vector or a MPS representing the quantum state
 # op : operator; a complex matrix representing the operator, for MPS you can also pass the operator as a string (see ITensors for supported operators as strings)
 # f : function; takes the time-evolution as an argument and calculates a quantity e.g. f(states) = expval(states, nall(d, L))
+# subspace_indeces : indeces for a generic subspace; A list of integers, e.g. [2, 3] for two qubits and the 1 total boson subspace.
 
 function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number})
     out = state' * op * state
+    return real_with_warning(out)
+end
+function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number}, subspace_indeces::AbstractVector{<:Integer})
+    @views out = state[subspace_indeces]' * op[subspace_indeces, subspace_indeces] * state[subspace_indeces]
     return real_with_warning(out)
 end
 function expval(state::MPS, op::Union{Matrix{<:Number}, String}; kwargs...) # keyword arguments for ITensors.expect
