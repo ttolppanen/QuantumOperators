@@ -96,14 +96,16 @@ end
 
     @testset "Subspace" begin
         state = allone(d, L)
-        indices = total_boson_number_subspace(d, L)
+        dict, perm_mat, ranges = total_boson_number_subspace(d, L)
         n = nall(d, L)
         max_n = L * (d - 1)
-        for i in 1:max_n
+        for i in 0:max_n
             if i == L
-                @test expval(state, n, indices[i]) == i
+                @test expval(state, n, dict[i]) == i
+                @test expval(perm_mat * state, perm_mat * n * perm_mat', ranges[i + 1]) == i # works since the dict, and ranges, are sorted
             else
-                @test expval(state, n, indices[i]) == 0.0
+                @test expval(state, n, dict[i]) == 0.0
+                @test expval(perm_mat * state, perm_mat * n * perm_mat', ranges[i + 1]) == 0.0 # works since the dict, and ranges, are sorted
             end
         end
     end

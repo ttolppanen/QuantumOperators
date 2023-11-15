@@ -4,6 +4,7 @@ using SparseArrays
 using LinearAlgebra
 using ITensors
 using KrylovKit
+using DataStructures
 
 #internal
 include("Utility/ConvertToReal.jl")

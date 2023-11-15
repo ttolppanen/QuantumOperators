@@ -1,29 +1,35 @@
 # using SparseArrays
+# using DataStructures
 
-export generate_subspace_indices
-export total_boson_number_subspace
+export generate_subspace_info
 export find_subspace
-export generate_total_boson_number_subspace_finder
+export total_boson_number_subspace
 
-function generate_subspace_indices(dim::Int, find_property::Function)
-    out = Dict()
+function generate_subspace_info(dim::Int, find_property::Function)
+    subspace_dict = SortedDict()
     for i in 1:dim
         state = spzeros(dim)
         state[i] = 1.0
         property = find_property(state)
-        if haskey(out, property)
-            push!(out[property], i)
+        if haskey(subspace_dict, property)
+            push!(subspace_dict[property], i)
         else
-            out[property] = [i]
+            subspace_dict[property] = [i]
         end
     end
-    return out
-end
-
-function total_boson_number_subspace(d::Int, L::Int)
-    op = nall(d, L)
-    find_property(state) = expval(state, op)
-    return generate_subspace_indices(d^L, find_property)
+    permutation_matrix = spzeros(dim, dim)
+    subspace_ranges = []
+    range_end = 0
+    for indices in values(subspace_dict)
+        range_start = range_end + 1
+        range_end = range_start + length(indices) - 1
+        range = range_start:range_end
+        push!(subspace_ranges, range)
+        for (i, val) in pairs(indices)
+            permutation_matrix[range_start + i - 1, val] = 1
+        end
+    end
+    return subspace_dict, permutation_matrix, subspace_ranges
 end
 
 function find_subspace(state, subspace_indices::Dict; kwargs...)
@@ -38,7 +44,8 @@ function find_subspace(state, subspace_indices; digit_error = 15)
     end
 end
 
-function generate_total_boson_number_subspace_finder(d::Int, L::Int; kwargs...) # kwargs for find_subspace
-    indices = collect(values(total_boson_number_subspace(d, L)))
-    return state -> find_subspace(state, indices; kwargs...)
+function total_boson_number_subspace(d::Int, L::Int)
+    op = nall(d, L)
+    find_property(state) = expval(state, op)
+    return generate_subspace_info(d^L, find_property)
 end
