@@ -1,7 +1,7 @@
 name = "QuantumOperators"
 uuid = "c0e07f3f-1bc3-43ad-95cf-312e5bf06829"
 authors = ["ttolppanen <taneli.tolppanen@gmail.com>"]
-version = "0.1.18"
+version = "0.1.19"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
