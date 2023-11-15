@@ -96,7 +96,8 @@ end
 
     @testset "Subspace" begin
         state = allone(d, L)
-        dict, perm_mat, ranges = total_boson_number_subspace(d, L)
+        dict = total_boson_number_subspace_info(d, L)
+        perm_mat, ranges = total_boson_number_subspace_tools(d, L)
         n = nall(d, L)
         max_n = L * (d - 1)
         for i in 0:max_n
