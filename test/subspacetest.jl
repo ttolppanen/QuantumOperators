@@ -24,4 +24,14 @@
     @test_throws ErrorException finder(normalize!([1.0, 0, 0, 1.0]))
 end
 
+@testset "OP splitting" begin
+    d = 2; L = 2;
+    op = bosehubbard(d, L)
+    perm_mat, ranges = total_boson_number_subspace_tools(d, L)
+    split_H = split_operator(op, perm_mat, ranges)
+    @test split_H[1][1, 1] == 0
+    @test split_H[3][1, 1] == 2.0
+    @test split_H[2][1:2, 1:2] == [1.0 1.0; 1.0 1.0]
+end
+
 end # testset

@@ -4,6 +4,7 @@
 export subspace_info
 export subspace_tools
 export find_subspace
+export split_operator
 export total_boson_number_subspace_info
 export total_boson_number_subspace_tools
 
@@ -29,7 +30,7 @@ end
 function subspace_tools(subspace_dict::SortedDict)
     dim = sum(length.(collect(values(subspace_dict))))
     permutation_matrix = spzeros(dim, dim)
-    subspace_ranges = []
+    subspace_ranges::Vector{UnitRange} = []
     range_end = 0
     for indices in values(subspace_dict)
         range_start = range_end + 1
