@@ -1,6 +1,6 @@
 # using LinearAlgebra
 
-@testset "subspace" begin
+@testset "Subspace" begin
 
 @testset "FindSubspace" begin
     d = 2
@@ -22,6 +22,11 @@
     end
 
     @test_throws ErrorException finder(normalize!([1.0, 0, 0, 1.0]))
+
+    finder_id(state) = find_subspace(state, ranges; id_initial_guess = 3, iterate_order = -1)
+    for (state, answer) in test_states
+        @test finder_id(state)[2] == answer[1]
+    end
 end
 
 @testset "OP splitting" begin

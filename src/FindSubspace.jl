@@ -1,5 +1,6 @@
 # using SparseArrays
 # using DataStructures
+# using LinearAlgebra
 
 export subspace_info
 export subspace_tools
@@ -46,13 +47,21 @@ end
 function find_subspace(state, subspace_indices::Dict; kwargs...)
     return find_subspace(state, collect(values(subspace_indices)); kwargs...)
 end
-function find_subspace(state, subspace_indices; digit_error = 15)
-    max_norm, index = findmax(x -> norm(@view state[x]), subspace_indices)
-    if round(max_norm ; digits = digit_error) == 1.0
-        return index, subspace_indices[index]
+function find_subspace(state, subspace_indices; digit_error::Int = 15, id_initial_guess::Int = 1, iterate_order::Int = 1)
+    d = length(subspace_indices)
+    if iterate_order > 0
+        subspace_id = circshift(1:iterate_order:d, -(id_initial_guess - 1))
     else
-        throw(ErrorException("Could not find subspace. Max norm was $max_norm, with index $index. digit_error = $digit_error is too large."))
+        subspace_id = circshift(d:iterate_order:1, -(d - id_initial_guess))
     end
+    for i in subspace_id
+        range = subspace_indices[i]
+        n = norm(@view(state[range]))
+        if round(n; digits = digit_error) == 1.0
+            return i, subspace_indices[i]
+        end
+    end
+    throw(ErrorException("Could not find subspace. Maybe digit_error = $digit_error is too large."))
 end
 
 function split_operator(op::AbstractMatrix, proj_mat::AbstractMatrix, ranges::Vector{<:UnitRange})
