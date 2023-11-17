@@ -8,12 +8,11 @@ export split_operator
 export total_boson_number_subspace_info
 export total_boson_number_subspace_tools
 
+# here find_property takes in the basis vector index as an argument, instead of the state
 function subspace_info(dim::Int, find_property::Function)
     out = SortedDict()
     for i in 1:dim
-        state = spzeros(dim)
-        state[i] = 1.0
-        property = find_property(state)
+        property = find_property(i)
         if haskey(out, property)
             push!(out[property], i)
         else
@@ -67,11 +66,11 @@ end
 
 function total_boson_number_subspace_info(d::Int, L::Int)
     op = nall(d, L)
-    find_property(state) = expval(state, op)
+    find_property(i) = real(op[i, i])
     return subspace_info(d^L, find_property)
 end
 function total_boson_number_subspace_tools(d::Int, L::Int)
     op = nall(d, L)
-    find_property(state) = expval(state, op)
+    find_property(i) = real(op[i, i])
     return subspace_tools(d^L, find_property)
 end
