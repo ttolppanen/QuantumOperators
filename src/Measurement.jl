@@ -45,13 +45,14 @@ end
 function measuresite!(state::AbstractVector{<:Number}, msrop::MsrOpMatrixType, siteIndex::Integer)
     msr_result = rand(Float64)
     sum_of_msr = 0
-    for proj_op in msrop[siteIndex]
+    for i in eachindex(msrop[siteIndex])
+        proj_op = msrop[siteIndex][i]
         proj_state = proj_op * state
         sum_of_msr += sum(abs2.(proj_state))
         if msr_result < sum_of_msr
             state .= proj_state
             normalize!(state)
-            break
+            return i
         end
     end
 end
@@ -59,13 +60,14 @@ function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer; kwa
     ITensors.orthogonalize!(mps, siteIndex) # Is this necessary?
     msr_result = rand(Float64)
     sum_of_msr = 0
-    for proj_op in msrop[siteIndex]
+    for i in eachindex(msrop[siteIndex])
+        proj_op = msrop[siteIndex][i]
         proj_mps = apply(proj_op, mps; kwargs...)
         sum_of_msr += real(inner(proj_mps, proj_mps))
         if msr_result < sum_of_msr
             mps .= proj_mps
             normalize!(mps)
-            break
+            return i
         end
     end
 end
