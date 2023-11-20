@@ -37,8 +37,9 @@ function subspace_tools(dim::Int, find_property::Function)
     return subspace_tools(dict)
 end
 function subspace_tools(subspace_dict::SortedDict)
-    dim = sum(length.(collect(values(subspace_dict))))
-    permutation_matrix = spzeros(dim, dim)
+    Is::Vector{Int64} = [] # these are for creating permutation_matrix efficiently
+    Js::Vector{Int64} = []
+    Vs::Vector{ComplexF64} = []
     subspace_ranges::Vector{UnitRange} = []
     range_end = 0
     for indices in values(subspace_dict)
@@ -47,10 +48,13 @@ function subspace_tools(subspace_dict::SortedDict)
         range = range_start:range_end
         push!(subspace_ranges, range)
         for (i, val) in pairs(indices)
-            permutation_matrix[range_start + i - 1, val] = 1
+            push!(Is, range_start + i - 1)
+            push!(Js, val)
+            push!(Vs, 1)
+            # permutation_matrix[range_start + i - 1, val] = 1
         end
     end
-    return permutation_matrix, subspace_ranges
+    return subspace_ranges, sparse(Is, Js, Vs)
 end
 
 function find_subspace(state, subspace_indices::Dict; kwargs...)
@@ -81,6 +85,21 @@ function subspace_split(op::AbstractArray, subspace_indices::Array)
     end
     return out
 end
+function subspace_split(op::AbstractArray, subspace_ranges::Vector{<:UnitRange}, perm_mat::AbstractMatrix)
+    out::Vector{typeof(op)} = []
+    rank = length(size(op)) # differentiates between vectors, matrices etc...
+    if rank == 1
+        temp_op = perm_mat * op
+    elseif rank == 2
+        temp_op = perm_mat * op * perm_mat'
+    else
+        throw(ArgumentError("op is not a vector or a matrix."))
+    end
+    for range in subspace_ranges
+        push!(out, temp_op[[range for _ in 1:rank]...]) # vectors -> op[indices], matrices -> op[indices, indices],
+    end
+    return out
+end
 
 function total_boson_number_subspace_functions(d::Int, L::Int, f::Function)
     op = nall(d, L)
@@ -91,50 +110,68 @@ total_boson_number_subspace_info(d::Int, L::Int) = total_boson_number_subspace_f
 total_boson_number_subspace_indices(d::Int, L::Int) = total_boson_number_subspace_functions(d, L, subspace_indices)
 total_boson_number_subspace_tools(d::Int, L::Int) = total_boson_number_subspace_functions(d, L, subspace_tools)
 
-
 function measurement_subspace(msrop::MsrOpMatrixType, subspace_indices::Array)
     out::Vector{MsrOpMatrixType} = []
     for id in eachindex(subspace_indices)
+        indices = subspace_indices[id]
         push!(out, [])
         for L in eachindex(msrop)
             push!(out[id], [])
             for msr_op in msrop[L]
-                indices = subspace_indices[id]
                 push!(out[id][L], msr_op[indices, indices])
             end
         end
     end
     return out
 end
-
-function feedback_measurement_subspace(feedback::Vector{<:AbstractMatrix}, msrop::MsrOpMatrixType, subspace_indices::Array; digit_error = 15, kwargs...) # kwargs for find_subspace
-    d = size(feedback[1])[1]
-    out = []
-    for id in eachindex(subspace_indices)
+function measurement_subspace(msrop::MsrOpMatrixType, subspace_ranges::Array, perm_mat::AbstractMatrix)
+    out::Vector{MsrOpMatrixType} = []
+    for id in eachindex(subspace_ranges)
+        range = subspace_ranges[id]
         push!(out, [])
         for L in eachindex(msrop)
             push!(out[id], [])
-            for msr_outcome in eachindex(msrop[L])
-                fb_op = feedback[L]
-                indices = subspace_indices[id]
-                msr_op = msrop[L][msr_outcome]
-                subspace_d = length(indices)
+            for msr_op in msrop[L]
+                temp_op = perm_mat * msr_op * perm_mat'
+                push!(out[id][L], temp_op[range, range])
+            end
+        end
+    end
+    return out
+end
 
-                state = complex(spzeros(d))
+function feedback_measurement_subspace(
+    feedback::Vector{<:AbstractMatrix}, msrop::Vector{MsrOpMatrixType}, subspace_indices::Array
+    ; digit_error = 15, id_relative_guess::Int = 0, kwargs...) # kwargs for find_subspace
+
+    d = size(feedback[1])[1]
+    state = complex(zeros(d))
+    out = []
+    for id in eachindex(subspace_indices)
+        indices = subspace_indices[id]
+        subspace_d = length(indices)
+        push!(out, [])
+        for L in eachindex(msrop[id])
+            fb_op = feedback[L]
+            push!(out[id], [])
+            for msr_outcome in eachindex(msrop[id][L])
+                msr_op = msrop[id][L][msr_outcome]
+
+                state .= 0
                 state[indices] .= ones(subspace_d) ./ sqrt(subspace_d)
-                state[indices] .= msr_op[indices, indices] * state[indices] # measurements are assumed to stay in the subspace
+                state[indices] .= msr_op * state[indices] # measurements are assumed to stay in the subspace
                 if round(norm(state); digits = digit_error) == 0.0
-                    push!(out[id][L], (id, spzeros(1,1)))
+                    push!(out[id][L], (-1, spzeros(1,1)))
                     continue
                 end
                 normalize!(state)
                 # measurements should not be able to change the subspace, but since here the measurement probability is not calculated,
                 # measurements that are not possible can happen. This shouldn't affect calculations, it just means that
-                # out has matrices that won't be used.
+                # there are matrices in out that won't be used.
                 state .= fb_op * state
                 normalize!(state)
                 
-                new_id = find_subspace(state, subspace_indices; digit_error, kwargs...)
+                new_id = find_subspace(state, subspace_indices; digit_error, id_initial_guess = id + id_relative_guess, kwargs...)
                 feedback_in_subspace = fb_op[subspace_indices[new_id], indices]
                 push!(out[id][L], (new_id, feedback_in_subspace))
             end
@@ -145,5 +182,5 @@ function feedback_measurement_subspace(feedback::Vector{<:AbstractMatrix}, msrop
     # and the feedback operator in that subspace: (id, fb_op).
     # The dimensions of the fb_op in subspace is d(fb_op) = d(new_subspace) * d(old_subspace),
     # so it takes the vector a new subspace when it operates.
-    return out, measurement_subspace(msrop, subspace_indices)
+    return out
 end

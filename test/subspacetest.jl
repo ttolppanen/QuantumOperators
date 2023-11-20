@@ -6,7 +6,7 @@
     d = 2
     L = 2
     dict = total_boson_number_subspace_info(d, L)
-    perm_mat, ranges = total_boson_number_subspace_tools(d, L)
+    ranges, perm_mat = total_boson_number_subspace_tools(d, L)
     finder(state) = find_subspace(state, collect(values(dict)))
     finder_range(state) = find_subspace(state, ranges)
     test_states = Dict(
@@ -44,22 +44,32 @@ end
     @test split_H[1][1, 1] == 0
     @test split_H[3][1, 1] == 2.0
     @test split_H[2][1:2, 1:2] == [1.0 1.0; 1.0 1.0]
+
+    ranges, perm_mat = total_boson_number_subspace_tools(d, L)
+    @test split_H == subspace_split(op, ranges, perm_mat)
+    @test_throws ArgumentError subspace_split(zeros(3, 3, 3), ranges, perm_mat)
 end
 
 @testset "Measurement in subspace" begin
     d = 2; L = 2;
-    msrop = measurementoperators(nop(d), L) # here msrop[L][1] -> measurement outcome 1 boson, here msrop[L][2] -> 0 boson
-    feedback = [singlesite(n_bosons_projector(d, 0), L, i) for i in 1:L] # project to |0>
     indices = total_boson_number_subspace_indices(d, L)
-    feedback, msrop = feedback_measurement_subspace(feedback, msrop, indices)
+    msrop = measurementoperators(nop(d), L) # here msrop[L][1] -> measurement outcome 1 boson, msrop[L][2] -> 0 boson
+    split_msrop = measurement_subspace(msrop, indices)
+    feedback = [singlesite(n_bosons_projector(d, 0), L, i) for i in 1:L] # project to |0>
+    feedback = feedback_measurement_subspace(feedback, split_msrop, indices)
     
-    #feedback[subspace_id][site][msr_outcome], and looking at the index
+    #feedback[subspace_id][site][msr_outcome], and looking at the after feedback subspace_id
     @test (feedback[3][1][1])[1] == 2
     @test (feedback[2][1][1])[1] == 1
-    @test (feedback[1][1][1])[1] == 1
-
-    @test (feedback[3][1][2])[1] == 3 # this shouldn't be possible, but for now is intented.
+    @test (feedback[1][1][2])[1] == 1
     @test (feedback[2][1][2])[1] == 2
+    
+
+    @test (feedback[3][1][2])[1] == -1 # not a possible outcome
+    @test (feedback[1][1][1])[1] == -1 # not a possibe outcome
+
+    ranges, perm_mat = total_boson_number_subspace_tools(d, L)
+    @test split_msrop == measurement_subspace(msrop, ranges, perm_mat)
 end
 
 end # testset
