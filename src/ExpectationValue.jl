@@ -11,11 +11,11 @@ export bosonmean
 # subspace_indeces : indeces for a generic subspace; A list of integers, e.g. [2, 3] for two qubits and the 1 total boson subspace.
 
 function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number})
-    out = state' * op * state
+    out = dot(state, op, state)
     return real_with_warning(out)
 end
 function expval(state::AbstractVector{<:Number}, op::AbstractMatrix{<:Number}, subspace_indeces::AbstractVector{<:Integer})
-    @views out = state[subspace_indeces]' * op[subspace_indeces, subspace_indeces] * state[subspace_indeces]
+    @views out = dot(state[subspace_indeces], op[subspace_indeces, subspace_indeces], state[subspace_indeces])
     return real_with_warning(out)
 end
 function expval(state::MPS, op::Union{Matrix{<:Number}, String}; kwargs...) # keyword arguments for ITensors.expect
