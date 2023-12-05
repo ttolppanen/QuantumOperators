@@ -1,4 +1,6 @@
 using LinearAlgebra
+using SparseArrays
+using QuantumOperators
 
 function calc_1(m, v)
     return sum(abs2.(m * v))
@@ -7,15 +9,16 @@ end
 function calc_2(m, v)
     out::Float64 = 0
     for j in axes(m, 2)
-        out += dot(v, @view(m[:, j])) 
+        out += abs2(dot(@view(m[:, j]), v)) 
     end
-    return out::Float64
+    return out
 end
 
 function f()
-    n = 10000
-    m = rand(n, n)
-    v = rand(n)
+    d = 2; L = 18;
+    msr_op = measurementoperators(nop(d), L)
+    m = msr_op[1][1]
+    v = rand(d^L)
 
     calc_1(m, v)
     calc_2(m, v)

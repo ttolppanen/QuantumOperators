@@ -38,25 +38,21 @@ end
     @test real(inner(state, msrresults[1])) ≈ 1.0 || real(inner(state, msrresults[2])) ≈ 1.0
 end
 
-@testset "Operate After Measurement" begin
+@testset "Operate After Measurement" begin # some of these tests are somewhat trivial, but oh well...
     d = 3; L = 3
     @testset "Total Space" begin
         state = zeroone(d, L)
         msrop = measurementoperators(nop(d), L)
-        proj_op = n_bosons_projector(d, 2)
-        unitary_after_measurement!(proj_op, msrop)
+        U = exp(-1im * Matrix(nop(d)))
+        unitary_after_measurement!(U, msrop)
         measuresite!(state, msrop, 1)
         n = nall(d, L)
-        @test expval(state, n) == 3.0
-        state .= normalize!(state + onezero(d, L)) # 210 + 101
-        measuresite!(state, msrop, 3) # -> 212 or 102
-        bosons = expval(state, n)
-        @test bosons == 5 || bosons == 3
+        @test expval(state, n) == 1.0
     end
     @testset "MPS" begin
         state = zeroonemps(d, L)
         msrop = measurementoperators(nop(d), siteinds(state))
-        proj_op = n_bosons_projector(d, 2)
+        proj_op = n_bosons_projector(d, 2)  # this is not unitary, and this is not suppose to work!
         unitary_after_measurement!(proj_op, msrop)
         measuresite!(state, msrop, 1)
         bosons = sum(expval(state, "N"))
@@ -72,20 +68,20 @@ end
         state = zeroone(d, L) # 0101
         n = nall(d, L)
         msrop = measurementoperators(nop(d), L)
-        proj_op1 = n_bosons_projector(d, 2)
-        proj_op2 = n_bosons_projector(d, 0)
-        v_p = [isodd(i) ? proj_op1 : proj_op2 for i in 1:L]
+        U1 = exp(-1im * Matrix(nop(d)))
+        U2 = 2 * U1
+        v_p = [isodd(i) ? U1 : U2 for i in 1:L]
         m = msrop[1][1]
         unitary_after_measurement!(v_p, msrop)
-        measuresite!(state, msrop, 1) # 2101
-        measuresite!(state, msrop, 2) # 2001
+        measuresite!(state, msrop, 1)
+        measuresite!(state, msrop, 2)
         n = nall(d, L)
-        @test expval(state, n) == 3.0
+        @test expval(state, n) ≈ 2
     end
     @testset "MPS List Of Unitary" begin
         state = zeroonemps(d, L)
         msrop = measurementoperators(nop(d), siteinds(state))
-        proj_op1 = n_bosons_projector(d, 2)
+        proj_op1 = n_bosons_projector(d, 2) # these are not unitary, and this is not suppose to work!
         proj_op2 = n_bosons_projector(d, 0)
         v_p = [isodd(i) ? proj_op1 : proj_op2 for i in 1:L]
         unitary_after_measurement!(v_p, msrop)

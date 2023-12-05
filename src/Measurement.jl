@@ -6,8 +6,8 @@
 # include("CompleteSpaceOperators.jl")
 
 export measurementoperators
+export calc_msr_probability
 export measuresite!
-export unitary_after_measurement!
 export MsrOpMatrixType
 export MsrOpITensorType
 
@@ -42,15 +42,22 @@ function measurementoperators(op::AbstractMatrix{<:Number}, indices::Vector{Inde
     return out # structure is out[site][measurement result]
 end
 
+function calc_msr_probability(proj_op::AbstractMatrix, state::AbstractVector{<:Number})
+    out::Float64 = 0
+    for j in axes(proj_op, 2)
+        out += abs2(dot(@view(proj_op[:, j]), state)) # here I can loop over the second index, since projection operators should be symmetric. 
+    end
+    return out
+end
+
 function measuresite!(state::AbstractVector{<:Number}, msrop::MsrOpMatrixType, siteIndex::Integer)
     msr_result = rand(Float64)
     sum_of_msr = 0
     for i in eachindex(msrop[siteIndex])
         proj_op = msrop[siteIndex][i]
-        proj_state = proj_op * state
-        sum_of_msr += sum(abs2.(proj_state))
+        sum_of_msr += calc_msr_probability(proj_op, state)
         if msr_result < sum_of_msr
-            state .= proj_state
+            state .= proj_op * state
             normalize!(state)
             return i
         end
@@ -72,6 +79,7 @@ function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer; kwa
     end
 end
 
+#=
 function unitary_after_measurement!(U::AbstractMatrix{<:Complex}, msrop::T) where {T<:MsrOpMatrixType}
     L = length(msrop)
     for site in 1:L
@@ -116,6 +124,7 @@ function unitary_after_measurement!(U::Vector{<:AbstractMatrix{<:Complex}}, msro
     end
     if !isa(msrop, T) throw(ArgumentError("Type of U changed the type of msrop. Try Matrix(U)")) end
 end
+=#
 
 # alternatively use:
 # opname = "whatever"
