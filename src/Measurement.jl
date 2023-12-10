@@ -14,7 +14,7 @@ export MsrOpITensorType
 # op : operator; a complex matrix representing the operators
 # indices : physical indices, see ITensors
 
-MsrOpMatrixType = Vector{Vector{AbstractMatrix{<:Number}}}
+MsrOpMatrixType = Vector{Vector{SparseMatrixCSC{ComplexF64, Int64}}}
 MsrOpITensorType = Vector{Vector{ITensor}}
 
 function measurementoperators(op::AbstractMatrix{<:Number}, L::Integer)::MsrOpMatrixType
@@ -42,18 +42,22 @@ function measurementoperators(op::AbstractMatrix{<:Number}, indices::Vector{Inde
     return out # structure is out[site][measurement result]
 end
 
-function calc_msr_probability(proj_op::AbstractMatrix, state::AbstractVector{<:Number})
-    out::Float64 = 0
+function calc_msr_probability(proj_op::SparseMatrixCSC{ComplexF64, Int64}, state::Vector{ComplexF64})
+    out = 0.0
     for j in axes(proj_op, 2)
-        out += abs2(dot(@view(proj_op[:, j]), state)) # here I can loop over the second index, since projection operators should be symmetric. 
+        for r in nzrange(proj_op, j)
+            i = rowvals(proj_op)[r]
+            out += abs2(nonzeros(proj_op)[r]' * state[i])
+        end
     end
     return out
 end
 
-function measuresite!(state::AbstractVector{<:Number}, msrop::MsrOpMatrixType, siteIndex::Integer)
+function measuresite!(state::AbstractVector{<:Number}, msrop::MsrOpMatrixType, siteIndex::Integer)::Int64
     msr_result = rand(Float64)
-    sum_of_msr = 0
-    for i in eachindex(msrop[siteIndex])
+    sum_of_msr = 0.0
+    msr_results = length(msrop[siteIndex])
+    for i in 1:(msr_results - 1)
         proj_op = msrop[siteIndex][i]
         sum_of_msr += calc_msr_probability(proj_op, state)
         if msr_result < sum_of_msr
@@ -62,11 +66,15 @@ function measuresite!(state::AbstractVector{<:Number}, msrop::MsrOpMatrixType, s
             return i
         end
     end
+    proj_op = msrop[siteIndex][msr_results] # the last msr happened
+    state .= proj_op * state
+    normalize!(state)
+    return msr_results
 end
 function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer; kwargs...) # kwargs for ITensors.apply
     ITensors.orthogonalize!(mps, siteIndex) # Is this necessary?
     msr_result = rand(Float64)
-    sum_of_msr = 0
+    sum_of_msr = 0.0
     for i in eachindex(msrop[siteIndex])
         proj_op = msrop[siteIndex][i]
         proj_mps = apply(proj_op, mps; kwargs...)

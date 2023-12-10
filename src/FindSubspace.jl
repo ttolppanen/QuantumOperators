@@ -161,7 +161,7 @@ function feedback_measurement_subspace(
                 state[indices] .= ones(subspace_d) ./ sqrt(subspace_d)
                 state[indices] .= msr_op * state[indices] # measurements are assumed to stay in the subspace
                 if round(norm(state); digits = digit_error) == 0.0
-                    push!(out[id][L], (-1, spzeros(1,1)))
+                    push!(out[id][L], (-1, complex(spzeros(1,1))))
                     continue
                 end
                 normalize!(state)
@@ -182,5 +182,5 @@ function feedback_measurement_subspace(
     # and the feedback operator in that subspace: (id, fb_op).
     # The dimensions of the fb_op in subspace is d(fb_op) = d(new_subspace) * d(old_subspace),
     # so it takes the vector a new subspace when it operates.
-    return out
+    return convert(Vector{Vector{Vector{typeof(out[1][1][1])}}}, out)
 end
