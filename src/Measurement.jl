@@ -10,6 +10,7 @@ export calc_msr_probability
 export measuresite!
 export MsrOpMatrixType
 export MsrOpITensorType
+export unitary_after_measurement!
 
 # op : operator; a complex matrix representing the operators
 # indices : physical indices, see ITensors
@@ -42,7 +43,7 @@ function measurementoperators(op::AbstractMatrix{<:Number}, indices::Vector{Inde
     return out # structure is out[site][measurement result]
 end
 
-function calc_msr_probability(proj_op::SparseMatrixCSC{ComplexF64, Int64}, state::Vector{ComplexF64})
+function calc_msr_probability(proj_op::AbstractMatrix{<:Number}, state::AbstractVector{<:Number})
     out = 0.0
     for j in axes(proj_op, 2)
         for r in nzrange(proj_op, j)
@@ -87,7 +88,7 @@ function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer; kwa
     end
 end
 
-#=
+
 function unitary_after_measurement!(U::AbstractMatrix{<:Complex}, msrop::T) where {T<:MsrOpMatrixType}
     L = length(msrop)
     for site in 1:L
@@ -132,7 +133,6 @@ function unitary_after_measurement!(U::Vector{<:AbstractMatrix{<:Complex}}, msro
     end
     if !isa(msrop, T) throw(ArgumentError("Type of U changed the type of msrop. Try Matrix(U)")) end
 end
-=#
 
 # alternatively use:
 # opname = "whatever"

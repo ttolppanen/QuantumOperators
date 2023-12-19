@@ -89,6 +89,17 @@ end
         measuresite!(state, msrop, 3) # 2010
         @test round.(expval(state, "N"), digits = 15) == [2, 0, 2, 0]
     end
+    @testset "calc_msr_probability" begin
+        d = 2; L = 2;
+        state = zeroone(d, L) / sqrt(3) + onezero(d, L) * sqrt(2.0 / 3.0)
+        zero_proj = [1 0; 0 0]
+        one_proj = [0 0; 0 1]
+        first_site_zero_proj = singlesite(zero_proj, L, 1)
+        first_site_one_proj = singlesite(one_proj, L, 1)
+
+        @test calc_msr_probability(first_site_zero_proj, state) ≈ 1 / 3
+        @test calc_msr_probability(first_site_one_proj, state) ≈ 2 / 3
+    end
 end
 
 end # testset

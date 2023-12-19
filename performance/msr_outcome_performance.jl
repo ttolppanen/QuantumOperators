@@ -18,7 +18,7 @@ function calc_2(m, v)
 end
 
 function f()
-    d = 2; L = 22;
+    d = 2; L = 12;
     msr_op = measurementoperators(nop(d), L)
     m = msr_op[1][1]
     v = complex(rand(d^L))
@@ -31,6 +31,7 @@ function f()
     @time calc_2(m, v)
 
     measuresite!(v, msr_op, 1)
+    @time measuresite!(v, msr_op, 1)
     # @time for i in 1:100 measuresite!(v, msr_op, 1) end
 end
 
