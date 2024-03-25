@@ -47,6 +47,9 @@ end
     @testset "nall" begin
         testtype(nall(d, 3)) 
     end
+    @testset "anhall" begin
+        testtype(anhall(d, 3)) 
+    end
     @testset "n_bosons_projector" begin
         testtype(n_bosons_projector(d, 2)) 
     end
@@ -78,6 +81,11 @@ end
     n = singlesite_n(d, L, 2)
     @test expval(state, n) == 2
     @test expval([state, state], n) == [2, 2]
+    state = productstate(d, [2 for _ in 1:L])
+    anh = anhall(d, L)
+    @test expval(state, anh) == 2 * L
+    anh_23 = anhall(d, L; sites = [2, 3])
+    @test expval(state, anh_23) == 2 * 2
 
     @testset "Trajectories" begin
         traj1 = [state, state]

@@ -9,6 +9,7 @@ export singlesite_n
 export singlesite_a
 export singlesite_adag
 export nall
+export anhall
 export bosehubbard
 
 # d : dimension; e.g. with qubits d = 2
@@ -39,6 +40,16 @@ function nall(d::Integer, L::Integer)
     out = singlesite(n, L, 1)
     for i in 2:L
         out += singlesite(n, L, i)
+    end
+    return out
+end
+
+function anhall(d::Integer, L::Integer; sites = 1:L)
+    n_temp = singlesite_n(d, L, sites[1])
+    out = n_temp * (n_temp - I)
+    for i in sites[2:end]
+        n_temp .= singlesite_n(d, L, i)
+        out .+= n_temp * (n_temp - I)
     end
     return out
 end
