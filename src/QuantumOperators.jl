@@ -17,5 +17,6 @@ include("Measurement.jl")
 include("PartialTrace.jl")
 include("Entanglement.jl")
 include("FindSubspace.jl")
+include("DissipationDecoherence.jl")
 
 end # module

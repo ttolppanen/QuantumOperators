@@ -10,6 +10,7 @@ include("bosehubbardtest.jl")
 include("projectionoperatorstest.jl")
 include("bosonmeantest.jl")
 include("subspacetest.jl")
+include("dissipationdecoherencetest.jl")
 
 @test begin
     d = 3
