@@ -43,6 +43,7 @@ function measurementoperators(op::AbstractMatrix{<:Number}, indices::Vector{Inde
     return out # structure is out[site][measurement result]
 end
 
+# This is assuming that proj_op is unitary?
 function calc_msr_probability(proj_op::AbstractMatrix{<:Number}, state::AbstractVector{<:Number})
     out = 0.0
     for j in axes(proj_op, 2)

@@ -12,15 +12,15 @@ end
 
 @testset "50% outcome" begin
     d = 2; L = 2;
-    state = normalize!(allzero(d, L) + onezero(d, L))
-    operators = [singlesite_n(d, L, 1)]
+    state = allone(d, L)
+    operators = [singlesite_n(d, L, 1), singlesite_n(d, L, 2)]
     outcomes = []
-    n = 100
+    n = 1000
     for _ in 1:n
         result = apply_diss_deco!(deepcopy(state), operators)
         push!(outcomes, result)
     end
-    @test abs(sum(outcomes) / n - 0.5) < 2 * 0.05 # 2 times standard deviation
+    @test abs(sum(outcomes .- 1) / n - 0.5) < 3 * 0.005 # 3 times standard deviation
 end
 
 end # testset
