@@ -11,7 +11,7 @@ function apply_diss_deco!(state::AbstractVector{<:Number}, operators::Vector{<:A
     n_outcomes = length(operators)
     for i in 1:n_outcomes
         op = operators[i]
-        prob = norm(op * state)
+        prob = norm(op * state)^2 # norm^2 = <psi|psi>
         push!(probabilities, prob)
     end
     probabilities .= probabilities ./ sum(probabilities)
