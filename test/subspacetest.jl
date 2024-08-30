@@ -48,6 +48,17 @@ end
     ranges, perm_mat = total_boson_number_subspace_tools(d, L)
     @test split_H == subspace_split(op, ranges, perm_mat)
     @test_throws ArgumentError subspace_split(zeros(3, 3, 3), ranges, perm_mat)
+
+    d = 3; L = 3;
+    state = bosonstack(2, L, 1)
+    a = singlesite_a(d, L, 1)
+    ranges, perm_mat = total_boson_number_subspace_tools(d, L)
+    id = 3
+    state_split = subspace_split(state, ranges, perm_mat)
+    a_relations = [-1 for _ in eachindex(ranges)]
+    a_relations[1] = 0
+    a_split = subspace_split(a, ranges, perm_mat, a_relations)
+    @test subspace_split(a * state, ranges, perm_mat)[id - 1] == a_split[id] * state_split[id]
 end
 
 @testset "Measurement in subspace" begin

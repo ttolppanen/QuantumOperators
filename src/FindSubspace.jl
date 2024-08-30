@@ -13,7 +13,7 @@ export total_boson_number_subspace_tools
 export measurement_subspace
 export feedback_measurement_subspace
 
-# here find_property takes in the basis vector index as an argument, instead of the state
+# find_property takes in the basis vector index as an argument, instead of the state
 function subspace_info(dim::Int, find_property::Function)
     out = SortedDict()
     for i in 1:dim
@@ -97,6 +97,15 @@ function subspace_split(op::AbstractArray, subspace_ranges::Vector{<:UnitRange},
     end
     for range in subspace_ranges
         push!(out, temp_op[[range for _ in 1:rank]...]) # vectors -> op[indices], matrices -> op[indices, indices],
+    end
+    return out
+end
+# this is for subspace splitting operators that change the subspace i.e. the annihilation operator.
+function subspace_split(op::AbstractMatrix, subspace_ranges::Vector{<:UnitRange}, perm_mat::AbstractMatrix, relations::Vector{<:Integer})
+    out::Vector{typeof(op)} = []
+    temp_op = perm_mat * op * perm_mat'
+    for i in eachindex(subspace_ranges)
+        push!(out, temp_op[subspace_ranges[i + relations[i]], subspace_ranges[i]])
     end
     return out
 end
