@@ -9,13 +9,17 @@ export apply_diss_deco!
 function apply_diss_deco!(state::AbstractVector{<:Number}, operators::Vector{<:AbstractMatrix}; normalize = true)::Int64
     probabilities = []
     n_outcomes = length(operators)
-    for i in 1:n_outcomes
-        op = operators[i]
-        prob = norm(op * state)^2 # norm^2 = <psi|psi>
-        push!(probabilities, prob)
+    if n_outcomes == 1
+        result = 1
+    else
+        for i in 1:n_outcomes
+            op = operators[i]
+            prob = norm(op * state)^2 # norm^2 = <psi|psi>
+            push!(probabilities, prob)
+        end
+        probabilities .= probabilities ./ sum(probabilities)
+        result = findfirst(cumsum(real.(probabilities)) .> rand())
     end
-    probabilities .= probabilities ./ sum(probabilities)
-    result = findfirst(cumsum(real.(probabilities)) .> rand())
     state .= operators[result] * state
     if normalize 
         normalize!(state)
@@ -28,21 +32,25 @@ function apply_diss_deco!(state::Vector{<:AbstractVector{<:Number}}, subspace_id
     n_diss = length(diss_op)
     n_deco = length(deco_op)
 
-    # calculating probabilities
-    for i in 1:n_diss
-        op = diss_op[i]
-        prob = norm(op[subspace_id] * state[subspace_id])^2 # norm^2 = <psi|psi>
-        push!(probabilities, prob)
-    end
-    for i in 1:n_deco
-        op = deco_op[i]
-        prob = norm(op[subspace_id] * state[subspace_id])^2 # norm^2 = <psi|psi>
-        push!(probabilities, prob)
-    end
+    if (n_diss + n_deco) == 1
+        result = 1
+    else
+        # calculating probabilities
+        for i in 1:n_diss
+            op = diss_op[i]
+            prob = norm(op[subspace_id] * state[subspace_id])^2 # norm^2 = <psi|psi>
+            push!(probabilities, prob)
+        end
+        for i in 1:n_deco
+            op = deco_op[i]
+            prob = norm(op[subspace_id] * state[subspace_id])^2 # norm^2 = <psi|psi>
+            push!(probabilities, prob)
+        end
 
-    # normalizing and drawing the result
-    probabilities .= probabilities ./ sum(probabilities)
-    result = findfirst(cumsum(real.(probabilities)) .> rand())
+        # normalizing and drawing the result
+        probabilities .= probabilities ./ sum(probabilities)
+        result = findfirst(cumsum(real.(probabilities)) .> rand())
+    end
 
     # if dissipation happened, we need to change the subspace
     if result <= length(diss_op)
