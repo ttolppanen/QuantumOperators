@@ -34,4 +34,9 @@ H = bosehubbard(d, L; w = [0, 1, 2],
 @test expval(productstate(d, [0, 0, 2]), H) == 2 * 2 - 6
 @test productstate(d, [0, 1, 1])' * H * productstate(d, [0, 0, 2]) == sqrt(2)
 
+d = 3; L = 4
+Ws = rand(4)
+Us = rand(4)
+Js = rand(3)
+@test norm(bosehubbard(d, L; w=Ws, U=Us, J=Js) - bosehubbard(d, L, [(1, 2, Js[3]), (2, 3, Js[2]), (3, 4, Js[1])]; w=Ws, U=Us)) ≈ 0.0
 end # testset
