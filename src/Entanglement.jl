@@ -82,7 +82,7 @@ function entanglement(d::Integer, L::Integer, state::AbstractMatrix{<:Number}, c
     return out
 end
 function entanglement(mps::MPS, cut::Integer)
-    ITensors.orthogonalize!(mps, cut)
+    ITensorMPS.orthogonalize!(mps, cut)
     if cut == 1
         S = svd(mps[cut], siteind(mps, cut)).S
     else

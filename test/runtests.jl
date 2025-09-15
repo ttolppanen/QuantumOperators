@@ -3,6 +3,7 @@ using QuantumStates
 using SparseArrays
 using LinearAlgebra
 using ITensors
+using ITensorMPS
 
 include("measurementtest.jl")
 include("partialtracetest.jl")

@@ -36,7 +36,7 @@ function measurementoperators(op::AbstractMatrix{<:Number}, indices::Vector{Inde
         push!(out, [])
         ind = indices[i]
         for v in eigenvectors # loop over the width of the matrix
-            vtensor = ITensor(v * v', ind', ind)
+            vtensor = ITensor(Matrix(v * v'), prime(ind), ind)
             push!(out[i], vtensor)
         end
     end
@@ -74,7 +74,7 @@ function measuresite!(state::AbstractVector{<:Number}, msrop::MsrOpMatrixType, s
     return msr_results
 end
 function measuresite!(mps::MPS, msrop::MsrOpITensorType, siteIndex::Integer; kwargs...) # kwargs for ITensors.apply
-    ITensors.orthogonalize!(mps, siteIndex) # Is this necessary?
+    ITensorMPS.orthogonalize!(mps, siteIndex) # Is this necessary?
     msr_result = rand(Float64)
     sum_of_msr = 0.0
     for i in eachindex(msrop[siteIndex])

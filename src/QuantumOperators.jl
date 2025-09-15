@@ -3,6 +3,7 @@ module QuantumOperators
 using SparseArrays
 using LinearAlgebra
 using ITensors
+using ITensorMPS
 using KrylovKit
 using DataStructures
 
